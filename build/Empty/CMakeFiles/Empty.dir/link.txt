@@ -1,0 +1,1 @@
+/usr/bin/c++.exe -Wl,--enable-auto-import CMakeFiles/Empty.dir/EmptyApplication.cpp.o -o Empty.exe -Wl,--out-implib,libEmpty.dll.a -Wl,--major-image-version,0,--minor-image-version,0  ../Framework/Common/libCommon.a 
