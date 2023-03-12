@@ -1,3 +1,4 @@
+
 // include the basic windows header file
 #include <windows.h>
 #include <windowsx.h>
@@ -10,7 +11,6 @@
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
-
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -53,7 +53,8 @@ void CreateRenderTarget() {
     ID3D11Texture2D *pBackBuffer;
 
     // Get a pointer to the back buffer
-    g_pSwapchain->GetBuffer( 0, __uuidof( ID3D11Texture2D ),( LPVOID* )&pBackBuffer );
+    g_pSwapchain->GetBuffer( 0, __uuidof( ID3D11Texture2D ),
+                                 ( LPVOID* )&pBackBuffer );
 
     // Create a render-target view
     g_pDev->CreateRenderTargetView( pBackBuffer, NULL,
@@ -94,11 +95,10 @@ void InitPipeline() {
 
     // create the input layout object
     D3D11_INPUT_ELEMENT_DESC ied[] =
-     {
+    {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
-
 
     g_pDev->CreateInputLayout(ied, 2, VS->GetBufferPointer(), VS->GetBufferSize(), &g_pLayout);
     g_pDevcon->IASetInputLayout(g_pLayout);
@@ -116,6 +116,7 @@ void InitGraphics() {
         {XMFLOAT3(0.45f, -0.5, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f)},
         {XMFLOAT3(-0.45f, -0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f)}
     };
+
 
     // create the vertex buffer
     D3D11_BUFFER_DESC bd;
@@ -136,13 +137,9 @@ void InitGraphics() {
 }
 
 // this function prepare graphic resources for use
-
-//创建绘画所需的画布和画笔
 HRESULT CreateGraphicsResources(HWND hWnd)
 {
     HRESULT hr = S_OK;
-    
-
     if (g_pSwapchain == nullptr)
     {
         // create a struct to hold information about the swap chain
@@ -172,9 +169,7 @@ HRESULT CreateGraphicsResources(HWND hWnd)
                                                     D3D_FEATURE_LEVEL_9_2,
                                                     D3D_FEATURE_LEVEL_9_1};
         D3D_FEATURE_LEVEL FeatureLevelSupported;
-
-        HRESULT hr = S_OK;
-
+        //HRESULT hr = S_OK;
         // create a device, device context and swap chain using the information in the scd struct
         hr = D3D11CreateDeviceAndSwapChain(NULL,
                                       D3D_DRIVER_TYPE_HARDWARE,
@@ -209,7 +204,6 @@ HRESULT CreateGraphicsResources(HWND hWnd)
             SetViewPort();
             InitPipeline();
             InitGraphics();
-
         }
     }
     return hr;
@@ -277,7 +271,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    //wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
     wc.lpszClassName = _T("WindowClass1");
 
@@ -329,36 +324,40 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     // sort through and find what code to run for the message given
     switch(message)
     {
-        case WM_CREATE:
-            wasHandled = true;
-            break;  
-        case WM_PAINT:
-            wasHandled = true;
-            break;
+	case WM_CREATE:
+		wasHandled = true;
+        break;	
 
-       case WM_SIZE:
-            if (g_pSwapchain != nullptr)
-            {
-                DiscardGraphicsResources();
-            }
-            wasHandled = true;
-            break;
-
-       case WM_DESTROY:
-            DiscardGraphicsResources();
-            PostQuitMessage(0);
-            wasHandled = true;
+	case WM_PAINT:
+		result = CreateGraphicsResources(hWnd);
+        RenderFrame();
+		wasHandled = true;
         break;
+
+	case WM_SIZE:
+		if (g_pSwapchain != nullptr)
+		{
+		    DiscardGraphicsResources();
+			//g_pSwapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+		}
+		wasHandled = true;
+        break;
+
+	case WM_DESTROY:
+		DiscardGraphicsResources();
+		PostQuitMessage(0);
+		wasHandled = true;
+        break;
+
     case WM_DISPLAYCHANGE:
         InvalidateRect(hWnd, nullptr, false);
         wasHandled = true;
         break;
-     }
+    }
 
-     // Handle any messages the switch statement didn't
+    // Handle any messages the switch statement didn't
     if (!wasHandled) { result = DefWindowProc (hWnd, message, wParam, lParam); }
     return result;
 }
-
 
 
